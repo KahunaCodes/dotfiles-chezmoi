@@ -1,0 +1,8 @@
+# Files to ignore based on machine profile
+README.md
+LICENSE
+
+{{- if eq .profile "minimal" }}
+# Minimal profile (hb-mac) - only basic PATH and Warp hook
+private_dot_env.tmpl
+{{- end }}

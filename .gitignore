@@ -1,0 +1,8 @@
+# Chezmoi gitignore
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Local chezmoi config (contains machine-specific data)
+.chezmoi.toml
