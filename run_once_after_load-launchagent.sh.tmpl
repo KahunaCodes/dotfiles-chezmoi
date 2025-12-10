@@ -1,0 +1,12 @@
+{{- if ne .profile "minimal" -}}
+#!/bin/bash
+# Load the chezmoi update LaunchAgent
+
+PLIST="\$HOME/Library/LaunchAgents/com.chezmoi.update.plist"
+
+if [[ -f "\$PLIST" ]]; then
+    launchctl unload "\$PLIST" 2>/dev/null || true
+    launchctl load "\$PLIST"
+    echo "Loaded chezmoi update LaunchAgent (runs daily at 9am)"
+fi
+{{- end -}}

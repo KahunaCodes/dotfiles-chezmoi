@@ -7,9 +7,10 @@
 {{- $username := .chezmoi.username }}
 
 {{/* Detect profile based on hostname patterns */}}
-{{- if or (contains "Homebridge" $hostname) (contains "hb" (lower $hostname)) }}
+{{- $hostLower := lower $hostname }}
+{{- if or (contains "homebridge" $hostLower) (contains "hb" $hostLower) }}
 {{-   $profile = "minimal" }}
-{{- else if or (contains "M1" $hostname) (contains "automation" (lower $hostname)) }}
+{{- else if or (eq $hostname "M1") (contains "automation" $hostLower) }}
 {{-   $profile = "server" }}
 {{- end }}
 

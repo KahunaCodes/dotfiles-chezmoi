@@ -1,8 +1,19 @@
-# Files to ignore based on machine profile
+# Global ignores
 README.md
 LICENSE
+.DS_Store
 
+# Minimal profile (hb-mac) - only basic zshrc
 {{- if eq .profile "minimal" }}
-# Minimal profile (hb-mac) - only basic PATH and Warp hook
-private_dot_env.tmpl
+create_private_dot_env.tmpl
+private_dot_claude/
+Brewfile
+.Brewfile
+run_onchange_after_brew-bundle.sh.tmpl
+Library/
+{{- end }}
+
+# Server profile (automation-mac) - no Claude settings
+{{- if eq .profile "server" }}
+private_dot_claude/
 {{- end }}
