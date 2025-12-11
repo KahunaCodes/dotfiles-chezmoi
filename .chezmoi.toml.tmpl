@@ -1,3 +1,4 @@
+# Chezmoi config
 [data]
 {{- $hostname := .chezmoi.hostname }}
 {{- $profile := "workstation" }}
@@ -8,6 +9,4 @@
 {{-   $profile = "server" }}
 {{- end }}
 
-    hostname = {{ $hostname | quote }}
     profile = {{ $profile | quote }}
-    username = {{ .chezmoi.username | quote }}

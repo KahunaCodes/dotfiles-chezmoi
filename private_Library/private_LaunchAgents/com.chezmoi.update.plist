@@ -6,9 +6,9 @@
     <string>com.chezmoi.update</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/opt/homebrew/bin/chezmoi</string>
-        <string>update</string>
-        <string>--apply</string>
+        <string>/bin/zsh</string>
+        <string>-c</string>
+        <string>export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; chezmoi update --apply 2>&1 | logger -t chezmoi</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -17,11 +17,9 @@
         <key>Minute</key>
         <integer>0</integer>
     </dict>
-    <key>StandardOutPath</key>
-    <string>/tmp/chezmoi-update.log</string>
     <key>StandardErrorPath</key>
     <string>/tmp/chezmoi-update.err</string>
-    <key>RunAtLoad</key>
-    <false/>
+    <key>StandardOutPath</key>
+    <string>/tmp/chezmoi-update.log</string>
 </dict>
 </plist>
