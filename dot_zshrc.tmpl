@@ -1,60 +1,53 @@
 # ================================================================================
 # ZSH Configuration - Managed by Chezmoi
-# Machine: {{ .hostname }} | Profile: {{ .profile }}
+# Machine: {{ .chezmoi.hostname }} | Profile: {{ .profile }}
 # ================================================================================
 
 # -------------------------------------------------------------------------------
 # PATH Configuration
 # -------------------------------------------------------------------------------
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="/opt/homebrew/sbin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="/usr/local/bin:$PATH"
-export PATH="$HOME/bin:$PATH"
+export PATH="/opt/homebrew/bin:\$PATH"
+export PATH="/opt/homebrew/sbin:\$PATH"
+export PATH="\$HOME/.local/bin:\$PATH"
+export PATH="/usr/local/bin:\$PATH"
+export PATH="\$HOME/bin:\$PATH"
 
 {{- if eq .profile "workstation" }}
-# Windsurf
-export PATH="$HOME/.codeium/windsurf/bin:$PATH"
-{{- end }}
+# Windsurf (if installed)
+[[ -d "\$HOME/.codeium/windsurf/bin" ]] && export PATH="\$HOME/.codeium/windsurf/bin:\$PATH"
 
 # -------------------------------------------------------------------------------
 # Homebrew
 # -------------------------------------------------------------------------------
-{{- if ne .profile "minimal" }}
 export HOMEBREW_NO_ANALYTICS=1
 if [[ -f /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+    eval "\$(/opt/homebrew/bin/brew shellenv)"
 fi
-{{- end }}
 
-{{- if eq .profile "workstation" }}
 # -------------------------------------------------------------------------------
 # Development Tools
 # -------------------------------------------------------------------------------
-
 # NVM (Node Version Manager)
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export NVM_DIR="\$HOME/.nvm"
+[ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
+[ -s "\$NVM_DIR/bash_completion" ] && \. "\$NVM_DIR/bash_completion"
 
 # pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-command -v pyenv >/dev/null && eval "$(pyenv init -)"
+export PYENV_ROOT="\$HOME/.pyenv"
+[[ -d \$PYENV_ROOT/bin ]] && export PATH="\$PYENV_ROOT/bin:\$PATH"
+command -v pyenv >/dev/null && eval "\$(pyenv init -)"
 
 # Bun (if installed)
-if [[ -d "$HOME/.bun" ]]; then
-    export BUN_INSTALL="$HOME/.bun"
-    export PATH="$BUN_INSTALL/bin:$PATH"
-    [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+if [[ -d "\$HOME/.bun" ]]; then
+    export BUN_INSTALL="\$HOME/.bun"
+    export PATH="\$BUN_INSTALL/bin:\$PATH"
+    [ -s "\$HOME/.bun/_bun" ] && source "\$HOME/.bun/_bun"
 fi
-{{- end }}
 
-{{- if ne .profile "minimal" }}
 # -------------------------------------------------------------------------------
 # Claude CLI
 # -------------------------------------------------------------------------------
-alias claude="$HOME/.claude/local/claude"
+[[ -f "\$HOME/.claude/local/claude" ]] && alias claude="\$HOME/.claude/local/claude"
 alias cgc='claude --dangerously-skip-permissions "/sc:git --commit"'
 alias ci='claude --dangerously-skip-permissions "/init"'
 alias csi='claude --dangerously-skip-permissions "/sc:index"'
@@ -74,9 +67,12 @@ alias gb="git branch"
 alias gco="git checkout"
 alias gpl="git pull"
 alias gf="git fetch"
-{{- if eq .profile "workstation" }}
-alias checkgit="mgitstatus -d 5 -e ~/Projects"
-{{- end }}
+command -v mgitstatus >/dev/null && alias checkgit="mgitstatus -d 5 -e ~/Projects"
+
+# -------------------------------------------------------------------------------
+# Chezmoi
+# -------------------------------------------------------------------------------
+alias chedit='code \$(chezmoi source-path)'
 
 # -------------------------------------------------------------------------------
 # Directory Navigation
@@ -97,8 +93,8 @@ alias la="ls -A"
 alias l="ls -CF"
 alias cls="clear"
 alias h="history"
-alias path='echo -e ${PATH//:/\\n}'
-alias tree="find . -print | sed -e 's;[^/]*/;|____;g;s____|; |;g'"
+alias path='echo -e \${PATH//:/\\n}'
+alias tree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
 
 # Development
 alias ports="lsof -PiTCP -sTCP:LISTEN"
@@ -107,37 +103,34 @@ alias localip="ipconfig getifaddr en0"
 
 # System
 alias reload="source ~/.zshrc"
-alias zshconfig="${EDITOR:-code} ~/.zshrc"
+alias zshconfig="\${EDITOR:-code} ~/.zshrc"
 alias cpu="top -l 1 | grep 'CPU usage'"
 alias mem="top -l 1 | grep PhysMem"
-{{- if eq .profile "workstation" }}
 alias authrestart="sudo fdesetup authrestart"
-alias chedit='code $(chezmoi source-path)'
-{{- end }}
 
 # -------------------------------------------------------------------------------
 # Functions
 # -------------------------------------------------------------------------------
-mkcd() { mkdir -p "$1" && cd "$1"; }
-backup() { cp "$1" "$1.backup-$(date +%Y%m%d-%H%M%S)"; }
-hgrep() { history | grep "$1"; }
-ff() { find . -name "*$1*"; }
-fgrep() { find . -type f -exec grep -l "$1" {} \;; }
+mkcd() { mkdir -p "\$1" && cd "\$1"; }
+backup() { cp "\$1" "\$1.backup-\$(date +%Y%m%d-%H%M%S)"; }
+hgrep() { history | grep "\$1"; }
+ff() { find . -name "*\$1*"; }
+fgrep() { find . -type f -exec grep -l "\$1" {} \;; }
 
 newworktree() {
-    if [ -z "$1" ]; then
+    if [ -z "\$1" ]; then
         echo "Usage: newworktree <branch-name>"
         return 1
     fi
-    local branch_name="$1"
-    local dir_name="${branch_name//\//-}"
-    local worktree_path="../${dir_name}"
-    if [ -d "$worktree_path" ]; then
-        echo "Error: Directory '${worktree_path}' already exists."
+    local branch_name="\$1"
+    local dir_name="\${branch_name//\//-}"
+    local worktree_path="../\${dir_name}"
+    if [ -d "\$worktree_path" ]; then
+        echo "Error: Directory '\${worktree_path}' already exists."
         return 1
     fi
-    echo "Creating worktree for branch '${branch_name}' at '${worktree_path}'..."
-    git worktree add "$worktree_path" -b "$branch_name"
+    echo "Creating worktree for branch '\${branch_name}' at '\${worktree_path}'..."
+    git worktree add "\$worktree_path" -b "\$branch_name"
 }
 
 # -------------------------------------------------------------------------------
@@ -172,4 +165,4 @@ setopt APPEND_HISTORY
 # -------------------------------------------------------------------------------
 # Warp Terminal Hook
 # -------------------------------------------------------------------------------
-[[ "$-" == *i* ]] && printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh", "uname": "Darwin" }}\x9c'
+[[ "\$-" == *i* ]] && printf '\eP\$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh", "uname": "Darwin" }}\x9c'

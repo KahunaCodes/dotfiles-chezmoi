@@ -1,12 +1,10 @@
-# Chezmoi config
+# Chezmoi config - Two profiles: workstation (everything) or minimal (hb-mac only)
 [data]
 {{- $hostname := .chezmoi.hostname }}
 {{- $profile := "workstation" }}
 
 {{- if or (contains "Homebridge" $hostname) (contains "hb" (lower $hostname)) }}
 {{-   $profile = "minimal" }}
-{{- else if or (eq $hostname "M1") (contains "automation" (lower $hostname)) }}
-{{-   $profile = "server" }}
 {{- end }}
 
     profile = {{ $profile | quote }}
