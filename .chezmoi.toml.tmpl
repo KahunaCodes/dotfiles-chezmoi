@@ -1,19 +1,13 @@
-# Chezmoi config - auto-generated during init
-# Profiles: workstation (main/away), server (automation), minimal (hb)
-
 [data]
 {{- $hostname := .chezmoi.hostname }}
 {{- $profile := "workstation" }}
-{{- $username := .chezmoi.username }}
 
-{{/* Detect profile based on hostname patterns */}}
-{{- $hostLower := lower $hostname }}
-{{- if or (contains "homebridge" $hostLower) (contains "hb" $hostLower) }}
+{{- if or (contains "Homebridge" $hostname) (contains "hb" (lower $hostname)) }}
 {{-   $profile = "minimal" }}
-{{- else if or (eq $hostname "M1") (contains "automation" $hostLower) }}
+{{- else if or (eq $hostname "M1") (contains "automation" (lower $hostname)) }}
 {{-   $profile = "server" }}
 {{- end }}
 
     hostname = {{ $hostname | quote }}
     profile = {{ $profile | quote }}
-    username = {{ $username | quote }}
+    username = {{ .chezmoi.username | quote }}
