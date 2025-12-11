@@ -1,14 +1,41 @@
 {
   "permissions": {
     "allow": [
-      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(yarn:*)",
+      "Bash(pnpm:*)",
+      "Bash(pip:*)",
+      "Bash(python:*)",
+      "Bash(uv:*)",
+      "Bash(brew:*)",
+      "Bash(docker:*)",
+      "Bash(make:*)",
+      "Bash(cargo:*)",
       "Bash(find:*)",
-      "Bash(git worktree:*)",
-      "Bash(git fetch:*)",
-      "Bash(mkdir:*)"
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(cd:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Read(~/.zshrc)",
+      "Read(~/.env)"
     ],
     "deny": [
-      "Bash(pip3 install:*)"
+      "Bash(rm -rf /)",
+      "Bash(sudo rm -rf:*)",
+      "Bash(mkfs:*)",
+      "Bash(fdisk:*)",
+      "Bash(shutdown:*)",
+      "Bash(reboot:*)",
+      "Read(~/.ssh/id_*)",
+      "Read(**/.env.production)"
     ]
   }
 }
