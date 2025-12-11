@@ -24,18 +24,22 @@ Host github.com
 Host main main-mac
   HostName main-mac
   User bgadow
+  ForwardAgent yes
 
 Host auto automation-mac
   HostName automation-mac
   User m1
+  ForwardAgent yes
 
 Host away away-mac
   HostName away-mac
   User bgadow
+  ForwardAgent yes
 
 Host hb hb-mac homebridge-mac
   HostName homebridge-mac
   User homebridge
+  ForwardAgent yes
 
 # ==============================================================================
 # Mac Network - Local LAN (faster when on same network)
@@ -43,16 +47,27 @@ Host hb hb-mac homebridge-mac
 Host main-local main-l
   HostName 192.168.1.3
   User bgadow
+  ForwardAgent yes
 
 Host auto-local auto-l
   HostName 192.168.1.4
   User m1
+  ForwardAgent yes
 
 Host hb-local hb-l
   HostName 192.168.1.2
   User homebridge
+  ForwardAgent yes
 
 # away-mac is mobile, no static IP
+
+# ==============================================================================
+# Oracle Cloud (Kuma external monitoring)
+# ==============================================================================
+Host oracle kuma-oracle
+  HostName ORACLE_IP_PLACEHOLDER
+  User ubuntu
+  IdentityFile ~/.ssh/kuma-oracle.key
 
 # ==============================================================================
 # OrbStack (if installed)
