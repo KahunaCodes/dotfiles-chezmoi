@@ -1,0 +1,61 @@
+# ==============================================================================
+# SSH Configuration - Managed by Chezmoi
+# ==============================================================================
+
+# Default settings
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519_mac_network
+  ServerAliveInterval 60
+  ServerAliveCountMax 3
+
+# ==============================================================================
+# GitHub
+# ==============================================================================
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_github
+
+# ==============================================================================
+# Mac Network - Tailscale (preferred, works anywhere)
+# ==============================================================================
+Host main main-mac
+  HostName main-mac
+  User bgadow
+
+Host auto automation-mac
+  HostName automation-mac
+  User m1
+
+Host away away-mac
+  HostName away-mac
+  User bgadow
+
+Host hb hb-mac homebridge-mac
+  HostName homebridge-mac
+  User homebridge
+
+# ==============================================================================
+# Mac Network - Local LAN (faster when on same network)
+# ==============================================================================
+Host main-local main-l
+  HostName 192.168.1.3
+  User bgadow
+
+Host auto-local auto-l
+  HostName 192.168.1.4
+  User m1
+
+Host hb-local hb-l
+  HostName 192.168.1.2
+  User homebridge
+
+# away-mac is mobile, no static IP
+
+# ==============================================================================
+# OrbStack (if installed)
+# ==============================================================================
+Match exec "test -f ~/.orbstack/ssh/config"
+  Include ~/.orbstack/ssh/config
