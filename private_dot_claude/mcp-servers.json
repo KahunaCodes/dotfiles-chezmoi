@@ -1,0 +1,42 @@
+{
+  "filesystem": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["@modelcontextprotocol/server-filesystem"],
+    "env": {}
+  },
+  "memory": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["@modelcontextprotocol/server-memory"],
+    "env": {}
+  },
+  "playwright": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["@playwright/mcp@latest"],
+    "env": {}
+  },
+  "linear-server": {
+    "type": "sse",
+    "url": "https://mcp.linear.app/sse"
+  },
+  "magic": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@21st-dev/magic"],
+    "env": {}
+  },
+  "context7": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@upstash/context7-mcp"],
+    "env": {}
+  },
+  "sequential-thinking": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+    "env": {}
+  }
+}

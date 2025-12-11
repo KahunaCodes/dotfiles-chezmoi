@@ -1,0 +1,39 @@
+#!/bin/bash
+# Merge MCP servers from chezmoi-managed config into .claude.json
+# This preserves other runtime data in .claude.json while syncing MCP config
+#
+# mcp-servers.json hash: {{ include "private_dot_claude/mcp-servers.json" | sha256sum }}
+
+MCP_SOURCE="$HOME/.claude/mcp-servers.json"
+CLAUDE_CONFIG="$HOME/.claude.json"
+
+if [[ ! -f "$MCP_SOURCE" ]]; then
+    echo "MCP source file not found: $MCP_SOURCE"
+    exit 0
+fi
+
+if [[ ! -f "$CLAUDE_CONFIG" ]]; then
+    echo "Claude config not found, creating minimal config"
+    echo '{"mcpServers": {}}' > "$CLAUDE_CONFIG"
+fi
+
+# Check if jq is available
+if ! command -v jq &> /dev/null; then
+    echo "jq not found, skipping MCP merge"
+    exit 0
+fi
+
+# Backup current config
+cp "$CLAUDE_CONFIG" "$CLAUDE_CONFIG.bak"
+
+# Merge MCP servers into claude.json
+jq --slurpfile newmcp "$MCP_SOURCE" '.mcpServers = $newmcp[0]' "$CLAUDE_CONFIG" > "$CLAUDE_CONFIG.tmp"
+
+if [[ $? -eq 0 ]] && [[ -s "$CLAUDE_CONFIG.tmp" ]]; then
+    mv "$CLAUDE_CONFIG.tmp" "$CLAUDE_CONFIG"
+    echo "MCP servers synced to $CLAUDE_CONFIG"
+else
+    echo "Failed to merge MCP config, restoring backup"
+    mv "$CLAUDE_CONFIG.bak" "$CLAUDE_CONFIG"
+    rm -f "$CLAUDE_CONFIG.tmp"
+fi

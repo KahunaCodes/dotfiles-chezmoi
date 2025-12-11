@@ -1,0 +1,66 @@
+#!/bin/bash
+# Add project-level MCP servers to current directory
+# Usage: claude-mcp-init [template]
+# Templates: serena, all
+# 
+# This copies pre-configured MCP server configs to the current project
+
+TEMPLATE_DIR="$HOME/.claude/project-templates"
+TARGET_FILE=".mcp.json"
+
+show_help() {
+    echo "Usage: claude-mcp-init [template]"
+    echo ""
+    echo "Templates:"
+    echo "  serena    - Add Serena coding agent (heavy, use for complex projects)"
+    echo "  list      - Show available templates"
+    echo ""
+    echo "Examples:"
+    echo "  claude-mcp-init serena    # Add Serena to current project"
+    echo "  claude-mcp-init list      # List available templates"
+}
+
+list_templates() {
+    echo "Available MCP templates:"
+    for f in "$TEMPLATE_DIR"/*.mcp.json; do
+        if [[ -f "$f" ]]; then
+            name=$(basename "$f" .mcp.json)
+            echo "  - $name"
+        fi
+    done
+}
+
+add_template() {
+    local template="$1"
+    local source="$TEMPLATE_DIR/${template}.mcp.json"
+    
+    if [[ ! -f "$source" ]]; then
+        echo "Template not found: $template"
+        echo "Run 'claude-mcp-init list' to see available templates"
+        exit 1
+    fi
+    
+    if [[ -f "$TARGET_FILE" ]]; then
+        echo "Merging with existing $TARGET_FILE..."
+        # Merge the mcpServers objects
+        jq -s '.[0].mcpServers * .[1].mcpServers | {mcpServers: .}' "$TARGET_FILE" "$source" > "$TARGET_FILE.tmp"
+        mv "$TARGET_FILE.tmp" "$TARGET_FILE"
+    else
+        cp "$source" "$TARGET_FILE"
+    fi
+    
+    echo "Added $template to $TARGET_FILE"
+    echo "Restart Claude Code to load the new MCP server"
+}
+
+case "${1:-}" in
+    ""|"-h"|"--help")
+        show_help
+        ;;
+    "list")
+        list_templates
+        ;;
+    *)
+        add_template "$1"
+        ;;
+esac
