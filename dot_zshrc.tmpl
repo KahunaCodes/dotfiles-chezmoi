@@ -168,3 +168,74 @@ setopt APPEND_HISTORY
 # Warp Terminal Hook
 # -------------------------------------------------------------------------------
 [[ "$-" == *i* ]] && printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh", "uname": "Darwin" }}\x9c'
+
+# ===== CHEZMOI SYNC FUNCTIONS =====
+# Sync chezmoi to all other machines from current machine
+
+chezmoi-sync() {
+    local current_host=$(hostname -s)
+    local machines=("main-mac" "automation-mac" "away-mac" "hb-mac")
+    local failed=()
+    
+    echo "🔄 Syncing chezmoi from $current_host to all other machines..."
+    
+    # First, commit and push local changes if any
+    if [[ -d ~/.local/share/chezmoi/.git ]]; then
+        cd ~/.local/share/chezmoi
+        if [[ -n $(git status --porcelain) ]]; then
+            echo "📦 Committing local chezmoi changes..."
+            git add -A
+            git commit -m "sync: auto-commit from $current_host"
+            git push origin main 2>/dev/null || echo "⚠️  Push failed, continuing..."
+        fi
+        cd - > /dev/null
+    fi
+    
+    # Sync to each remote machine
+    for machine in "${machines[@]}"; do
+        # Skip current machine
+        if [[ "$machine" == "$current_host" ]]; then
+            continue
+        fi
+        
+        echo ""
+        echo "📡 Syncing to $machine..."
+        
+        # Check if machine is reachable
+        if ssh -o ConnectTimeout=3 -o BatchMode=yes "$machine" 'exit 0' 2>/dev/null; then
+            if ssh "$machine" '/opt/homebrew/bin/chezmoi update --force 2>&1'; then
+                echo "✅ $machine synced"
+            else
+                echo "❌ $machine sync failed"
+                failed+=("$machine")
+            fi
+        else
+            echo "⏭️  $machine not reachable, skipping"
+        fi
+    done
+    
+    echo ""
+    if [[ ${#failed[@]} -eq 0 ]]; then
+        echo "✅ All reachable machines synced!"
+    else
+        echo "⚠️  Failed machines: ${failed[*]}"
+    fi
+}
+
+# Quick alias
+alias cz-sync='chezmoi-sync'
+alias czs='chezmoi-sync'
+
+# Push local chezmoi changes and sync everywhere
+chezmoi-push() {
+    echo "📤 Pushing chezmoi changes..."
+    cd ~/.local/share/chezmoi
+    git add -A
+    git commit -m "${1:-sync: manual push}" 2>/dev/null || echo "Nothing to commit"
+    git push origin main
+    cd - > /dev/null
+    chezmoi-sync
+}
+
+alias cz-push='chezmoi-push'
+alias czp='chezmoi-push'
