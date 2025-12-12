@@ -1,0 +1,55 @@
+{
+    // ===== PYTHON CONFIGURATION =====
+    "python.defaultInterpreterPath": "\${workspaceFolder}/.venv/bin/python",
+    "python.terminal.executeInFileDir": true,
+    "python.terminal.launchArgs": ["-u"],
+    
+    // ===== TERMINAL =====
+    "terminal.integrated.env.osx": {
+        "FORCE_COLOR": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "TERM": "xterm-256color"
+    },
+    "terminal.integrated.minimumContrastRatio": 1,
+    
+    // ===== TESTING - DISABLED =====
+    // Prevents pytest auto-execution during git operations
+    // Run tests manually: python -m pytest test/ -v
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": ["test", "--collect-only"],
+    
+    // ===== FORMATTING =====
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": false,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.rulers": [120],
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "black-formatter.args": ["--line-length", "120"],
+    
+    // ===== LINTING =====
+    "ruff.enable": true,
+    "ruff.lint.enable": true,
+    
+    // ===== DEBUG =====
+    "debug.console.collapseIdenticalLines": false,
+    
+    // ===== FILE EXCLUSIONS =====
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "*.egg-info": true,
+        ".pytest_cache": true,
+        ".ruff_cache": true,
+        ".mypy_cache": true
+    },
+    "search.exclude": {
+        "**/__pycache__": true,
+        "**/.venv": true,
+        "**/archive": true
+    }
+}
