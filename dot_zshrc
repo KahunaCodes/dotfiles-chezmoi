@@ -1,0 +1,3 @@
+
+# Mount shares on hb-mac
+alias hb-mount='ssh hb-mac "~/scripts/mount-network-shares.sh && mount | grep smb"'
