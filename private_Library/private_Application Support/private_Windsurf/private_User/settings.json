@@ -1,0 +1,63 @@
+{
+  // ===== GIT SETTINGS =====
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.ignoreRebaseWarning": true,
+  "git.openRepositoryInParentFolders": "always",
+  "githubPullRequests.createOnPublishBranch": "never",
+
+  // ===== EXPLORER SETTINGS =====
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmPasteNative": false,
+  
+  // ===== EDITOR SETTINGS =====
+  "editor.accessibilitySupport": "off",
+  "diffEditor.ignoreTrimWhitespace": false,
+  
+  // ===== WINDOW SETTINGS =====
+  "window.commandCenter": 1,
+  "window.confirmSaveUntitledWorkspace": false,
+  "window.autoDetectColorScheme": true,
+  
+  // ===== THEME SETTINGS =====
+  "workbench.colorTheme": "GitHub Dark Default",
+  "workbench.preferredDarkColorTheme": "GitHub Dark Default",
+  "workbench.preferredLightColorTheme": "Gitpod Light",
+  
+  // ===== PYTHON SETTINGS =====
+  "python.createEnvironment.trigger": "off",
+  
+  // ===== TESTING - DISABLED GLOBALLY =====
+  // Prevents pytest auto-execution during git operations
+  // Run tests manually: python -m pytest test/ -v
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": false,
+  
+  // ===== TERMINAL SETTINGS =====
+  "terminal.integrated.enableMultiLinePasteWarning": false,
+  "terminal.integrated.inheritEnv": false,
+  
+  // ===== SECURITY SETTINGS =====
+  "security.workspace.trust.untrustedFiles": "open",
+  
+  // ===== FILE ASSOCIATIONS =====
+  "workbench.editorAssociations": {
+    "*.csv": "gc-excelviewer-csv-editor",
+    "*.md": "default",
+    "*.html": "default"
+  },
+  
+  // ===== AI/CLAUDE SETTINGS =====
+  "coderabbit.agentType": "Claude Code",
+  "claudeCode.preferredLocation": "panel",
+  
+  // ===== CURSOR/WINDSURF SPECIFIC =====
+  "cursor.diffs.useCharacterLevelDiffs": true,
+  "cursor.cpp.enablePartialAccepts": true,
+  
+  // ===== MISC =====
+  "workbench.experimental.share.enabled": true,
+  "workbench.auxiliaryActivityBar.location": "default"
+}
