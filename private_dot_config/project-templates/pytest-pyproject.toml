@@ -1,0 +1,40 @@
+# Pytest configuration template for Python projects
+# Copy relevant sections to your pyproject.toml
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["test", "tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests", 
+    "e2e: End-to-end tests",
+    "slow: Tests that take a long time",
+    "smoke: Quick smoke tests",
+]
+addopts = [
+    "--verbose",
+    "--strict-markers",
+    "--tb=short",
+    "-ra",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["src", "app"]
+omit = ["*/test/*", "*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
