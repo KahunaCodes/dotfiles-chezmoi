@@ -1,0 +1,19 @@
+# ==============================================================================
+# SSH Authorized Keys - Managed by Chezmoi
+# ==============================================================================
+# Full mesh between all Macs + iPhone access
+# Last updated: 2025-12-17
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Mac Network Keys (ed25519)
+# ------------------------------------------------------------------------------
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG9y+S3Y3GqqM6ZdUCcTy/PhCfKwXd1rTAFXynCIhv/J away-mac
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOi0bxbGApg6wz9+3v/F5kDmjkLlkcA/GCf/AqiouQU3 main-mac
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDUcmhRAPLhE6iXuIQnNEzs0Wyp5oEQFFLTXBSXiPB0m automation-mac
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEJR1b9HUhhNFv/oQx18P9Jdtp0+43MbNDWnS1/RWODj hb-mac
+
+# ------------------------------------------------------------------------------
+# Mobile Access (iPhone - Termius)
+# ------------------------------------------------------------------------------
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrJUbvhdpaw8+3oTLSsuAo/u8Q1oTSekQ935f4M+dyhPsehh4fSIhi1Ri9iNByO4SKbhpfJamRjqSv3/dPSEXZOW+oRshtwlnKqdfwM+envU7ICGeIP3KoRTB5KcJfWX/Wq//pRryUs3T2qkAMFMarh+KVfpT9SEaGPeJCXhz0P18+INhNJ8J9gdj4Gqgzcl5Arkowto1dqdl1lLijzXyr+/3k4cK8wNmxUe4nEqNJLT/OTXBH9nGoPsz2R5edIiy0mqjVUgc1LO/9UmLjGVjyfbt6uVInn3/Cj2X/pVxcVIXV7vEfMC9eX6Ii5/NUQtHMsUu8QUKxuI8i8sxtpcJ3 iphone-termius
