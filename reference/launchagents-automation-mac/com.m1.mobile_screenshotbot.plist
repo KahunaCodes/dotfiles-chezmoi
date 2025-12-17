@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.m1.mobile_screenshotbot</string>
+
+        <key>ProgramArguments</key>
+        <array>
+            <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/.venv/bin/python3</string>
+            <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/automation/screenshot_sb/screenshot_bot.py</string>
+            <string>--bms</string>
+        </array>
+
+        <key>WorkingDirectory</key>
+        <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts</string>
+
+        <key>EnvironmentVariables</key>
+        <dict>
+            <key>PATH</key>
+            <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+            <key>PYTHONPATH</key>
+            <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/</string>
+            <key>HOME</key>
+            <string>/Users/Apple</string>
+            <key>VIRTUAL_ENV</key>
+            <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/.venv</string>
+        </dict>
+
+        <key>StartCalendarInterval</key>
+        <array>
+            <dict>
+                <key>Minute</key>
+                <integer>0</integer>
+            </dict>
+            <dict>
+                <key>Minute</key>
+                <integer>30</integer>
+            </dict>
+        </array>
+
+        <key>StandardOutPath</key>
+        <string>/Users/Apple/Library/Logs/screenshot_bot/mobile_sb_output.log</string>
+
+        <key>StandardErrorPath</key>
+        <string>/Users/Apple/Library/Logs/screenshot_bot/mobile_sb_error.log</string>
+
+        <key>KeepAlive</key>
+        <false/>
+    </dict>
+</plist>

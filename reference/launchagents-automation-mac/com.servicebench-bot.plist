@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.servicebench-bot</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/Apple/servicebench-bot/.venv/bin/python</string>
+        <string>/Users/Apple/servicebench-bot/main.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/Apple/servicebench-bot</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/Apple/servicebench-bot/logs/servicebench-bot.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/Apple/servicebench-bot/logs/servicebench-bot-error.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin</string>
+        <key>PYTHONPATH</key>
+        <string>/Users/Apple/servicebench-bot:/Users/Apple/Projects/kahunacodes/active/PythonScripts</string>
+    </dict>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <key>StartInterval</key>
+    <integer>30</integer>
+</dict>
+</plist>

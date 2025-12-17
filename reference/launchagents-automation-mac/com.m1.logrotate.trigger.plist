@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.m1.logrotate.trigger</string>
+    <key>ProgramArguments</key>
+    <array>
+        <!-- Use the Homebrew logrotate binary -->
+        <string>/opt/homebrew/sbin/logrotate</string>
+        <!-- Provide the main config file which includes the .d directory -->
+        <string>/opt/homebrew/etc/logrotate.conf</string>
+        <!-- Add -f to force rotation even if criteria aren't met (optional, useful for testing) -->
+        <!-- <string>-f</string> -->
+        <!-- Add -v for verbose output during testing -->
+        <!-- <string>-v</string> -->
+    </array>
+    <key>RunAtLoad</key>
+    <false/> <!-- Don't run immediately on load unless testing -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <!-- Run daily, e.g., at 3:15 AM -->
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>15</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/m1/Library/Logs/logrotate_trigger.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/m1/Library/Logs/logrotate_trigger.err.log</string>
+</dict>
+</plist>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.m1.zip_update_force</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/.venv/bin/python3</string>
+        <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/automation/zip_update/zip_update.py</string>
+        <string>--force</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/automation/zip_update</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>PYTHONPATH</key>
+        <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/</string>
+        <key>HOME</key>
+        <string>/Users/Apple</string>
+        <key>VIRTUAL_ENV</key>
+        <string>/Users/Apple/Projects/kahunacodes/active/PythonScripts/.venv</string>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <array>
+      <dict>
+        <key>Hour</key>
+        <integer>6</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>1</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>6</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>3</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>6</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+        <key>Weekday</key>
+        <integer>5</integer>
+      </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/Apple/Library/Logs/zip_update/zip_update_force_output.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/Apple/Library/Logs/zip_update/zip_update_force_error.log</string>
+
+    <key>KeepAlive</key>
+    <false/>
+  </dict>
+</plist> 

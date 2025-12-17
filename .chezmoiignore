@@ -2,6 +2,7 @@
 README.md
 LICENSE
 .DS_Store
+reference/
 
 # Minimal profile (hb-mac) - only basic zshrc
 {{- if eq .profile "minimal" }}
