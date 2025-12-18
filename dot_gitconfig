@@ -1,0 +1,19 @@
+[user]
+	name = KahunaCodes
+	email = 131575034+KahunaCodes@users.noreply.github.com
+[credential]
+	helper = osxkeychain
+[safe]
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/main
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/better-testing
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/unified-servicebench
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/cns
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/logging
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/selector-optimization
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/service-explanations
+	directory = /Users/bgadow/Projects/kahunacodes/active/mileage-sync-worktrees/overnight-cleanup
+	directory = /Users/bgadow/Projects/kahunacodes/active/tee-time-booker-worktrees/web-app-mvp
+[core]
+	excludesfile = /Users/bgadow/.gitignore_global
+[init]
+	defaultBranch = main
