@@ -37,6 +37,10 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 command -v pyenv >/dev/null && eval "$(pyenv init -)"
 
+# uv (modern Python package manager)
+eval "$(uv generate-shell-completion zsh)"
+export UV_PYTHON_PREFERENCE=managed
+
 # Bun (if installed)
 if [[ -d "$HOME/.bun" ]]; then
     export BUN_INSTALL="$HOME/.bun"
