@@ -76,6 +76,20 @@ The MCP reminders servers don't work. Use `~/bin/reminders-cli` via shell instea
 - `projects/` - Project index pages (MOCs)
 - `systems/` - Machine/tool index pages (MOCs)
 
+### Note Format (REQUIRED)
+Every atomic note in `notes/` MUST start with:
+```markdown
+# Title
+
+**Date:** YYYY-MM-DD
+**Tags:** #tag1 #tag2 #tag3
+
+Content starts here...
+```
+
+Tags should be lowercase, hyphenated (e.g., `#servicebench-bot`, `#ssh-fix`).
+End notes with `## See Also` linking to relevant MOCs and notes.
+
 ### When to Use
 - **After completing a task:** Create note documenting what was done
 - **Learning something new:** Add to relevant MOC or create note
