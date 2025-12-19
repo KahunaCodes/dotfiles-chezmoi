@@ -64,3 +64,34 @@ The MCP reminders servers don't work. Use `~/bin/reminders-cli` via shell instea
 - Read project CLAUDE.md before starting work
 - Don't make assumptions on how to navigate sites
 - Back up claims with evidence and official docs
+
+## Lono Knowledge Vault
+
+**Location:** `~/.local/share/lono/`
+**Purpose:** Dev knowledge base - document learnings, decisions, and context
+
+### Structure
+- `inbox/` - Quick dumps (process later)
+- `notes/` - Atomic notes (`YYYYMMDDHHMM-slug.md`)
+- `projects/` - Project index pages (MOCs)
+- `systems/` - Machine/tool index pages (MOCs)
+
+### When to Use
+- **After completing a task:** Create note documenting what was done
+- **Learning something new:** Add to relevant MOC or create note
+- **Fixing an issue:** Document the problem and solution
+- **Before starting work:** Check relevant MOCs for context
+
+### Commands
+```bash
+# Quick note to inbox
+echo "# Quick thought" > ~/.local/share/lono/inbox/$(date +%Y%m%d%H%M).md
+
+# Commit and push changes
+cd ~/.local/share/lono && git add -A && git commit -m "vault update" && git push
+```
+
+### Key MOCs
+- `systems/away-mac.md`, `systems/main-mac.md`, `systems/auto-mac.md`
+- `systems/chezmoi.md`, `systems/homebrew.md`, `systems/python.md`
+- `projects/servicebench-bot.md`, `projects/n8n-platform.md`, `projects/nalofocus.md`
