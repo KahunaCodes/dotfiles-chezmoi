@@ -1,0 +1,61 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# Path Finder Settings Import
+# This runs when Path Finder settings change in the repo
+#
+# Settings hash: {{ include ".chezmoitemplates/pathfinder-prefs.plist" | sha256sum }}
+
+set -e
+
+PF_SUPPORT_DIR="$HOME/Library/Application Support/Path Finder"
+CHEZMOI_PF_DIR="{{ .chezmoi.sourceDir }}/private_Library/private_Application Support/private_Path Finder"
+PREFS_PLIST="{{ .chezmoi.sourceDir }}/.chezmoitemplates/pathfinder-prefs.plist"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${GREEN}🔄 Syncing Path Finder settings...${NC}"
+
+# Check if Path Finder is running
+if pgrep -x "Path Finder" > /dev/null; then
+    echo -e "${YELLOW}⚠️  Path Finder is running. Settings will apply after restart.${NC}"
+    PF_RUNNING=true
+else
+    PF_RUNNING=false
+fi
+
+# Import preferences plist (cfprefsd-safe)
+if [ -f "$PREFS_PLIST" ]; then
+    echo "  📦 Importing preferences..."
+    defaults import com.cocoatech.PathFinder "$PREFS_PLIST"
+    echo "  ✓ Preferences imported"
+fi
+
+# Create Application Support directory if needed
+mkdir -p "$PF_SUPPORT_DIR/Settings"
+
+# Copy SQLite settings database (only if PF not running)
+if [ "$PF_RUNNING" = false ] && [ -f "$CHEZMOI_PF_DIR/Settings/settings10" ]; then
+    echo "  📦 Copying settings database..."
+    cp "$CHEZMOI_PF_DIR/Settings/settings10" "$PF_SUPPORT_DIR/Settings/settings10"
+    # Remove WAL files if they exist (fresh start)
+    rm -f "$PF_SUPPORT_DIR/Settings/settings10-shm" "$PF_SUPPORT_DIR/Settings/settings10-wal"
+    echo "  ✓ Settings database copied"
+elif [ "$PF_RUNNING" = true ] && [ -f "$CHEZMOI_PF_DIR/Settings/settings10" ]; then
+    echo -e "${YELLOW}  ⚠️ Skipping database copy (Path Finder running)${NC}"
+fi
+
+# Copy Searches
+if [ -d "$CHEZMOI_PF_DIR/Searches" ]; then
+    echo "  📦 Copying saved searches..."
+    cp -R "$CHEZMOI_PF_DIR/Searches" "$PF_SUPPORT_DIR/"
+    echo "  ✓ Searches copied"
+fi
+
+echo -e "${GREEN}✅ Path Finder sync complete!${NC}"
+
+if [ "$PF_RUNNING" = true ]; then
+    echo -e "${YELLOW}   Restart Path Finder to apply all changes.${NC}"
+fi
+{{- end -}}
