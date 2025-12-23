@@ -1,61 +1,65 @@
-{{- if eq .chezmoi.os "darwin" -}}
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.username "bgadow") -}}
 #!/bin/bash
-# Path Finder Settings Import
-# This runs when Path Finder settings change in the repo
+# Path Finder Settings Sync (bgadow machines only)
+# Syncs sidebar favorites, toolbar bookmarks, and preferences
 #
 # Settings hash: {{ include "private_Library/private_Application Support/private_Path Finder/Settings/settings10" | sha256sum }}
 
 set -e
 
 PF_SUPPORT_DIR="$HOME/Library/Application Support/Path Finder"
+PF_PREFS_DIR="$HOME/Library/Preferences"
 CHEZMOI_PF_DIR="{{ .chezmoi.sourceDir }}/private_Library/private_Application Support/private_Path Finder"
-PREFS_PLIST="{{ .chezmoi.sourceDir }}/private_Library/private_Preferences/pathfinder-prefs.plist"
+CHEZMOI_PREFS_PLIST="{{ .chezmoi.sourceDir }}/private_Library/private_Preferences/pathfinder-prefs.plist"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${GREEN}🔄 Syncing Path Finder settings...${NC}"
+echo -e "${GREEN}🔄 Path Finder Sync${NC}"
+echo "   Machine: $(hostname -s)"
+echo "   User: $(whoami)"
+echo ""
 
 # Check if Path Finder is running
 if pgrep -x "Path Finder" > /dev/null; then
-    echo -e "${YELLOW}⚠️  Path Finder is running. Settings will apply after restart.${NC}"
-    PF_RUNNING=true
-else
-    PF_RUNNING=false
+    echo -e "${YELLOW}⚠️  Path Finder is running. Killing it first...${NC}"
+    pkill -x "Path Finder"
+    sleep 2
 fi
 
-# Import preferences plist (cfprefsd-safe)
-if [ -f "$PREFS_PLIST" ]; then
-    echo "  📦 Importing preferences..."
-    defaults import com.cocoatech.PathFinder "$PREFS_PLIST"
-    echo "  ✓ Preferences imported"
-fi
-
-# Create Application Support directory if needed
+# Create directories if needed
 mkdir -p "$PF_SUPPORT_DIR/Settings"
 
-# Copy SQLite settings database (only if PF not running)
-if [ "$PF_RUNNING" = false ] && [ -f "$CHEZMOI_PF_DIR/Settings/settings10" ]; then
-    echo "  📦 Copying settings database..."
+# Sync SQLite settings database (contains sidebar favorites)
+if [ -f "$CHEZMOI_PF_DIR/Settings/settings10" ]; then
+    echo "  📦 Syncing sidebar favorites (settings10)..."
     cp "$CHEZMOI_PF_DIR/Settings/settings10" "$PF_SUPPORT_DIR/Settings/settings10"
-    # Remove WAL files if they exist (fresh start)
     rm -f "$PF_SUPPORT_DIR/Settings/settings10-shm" "$PF_SUPPORT_DIR/Settings/settings10-wal"
-    echo "  ✓ Settings database copied"
-elif [ "$PF_RUNNING" = true ] && [ -f "$CHEZMOI_PF_DIR/Settings/settings10" ]; then
-    echo -e "${YELLOW}  ⚠️ Skipping database copy (Path Finder running)${NC}"
+    echo -e "  ${GREEN}✓${NC} Sidebar favorites synced"
 fi
 
-# Copy Searches
+# Sync preferences plist directly (contains toolbar bookmarks + other prefs)
+# Using direct file copy to avoid cfprefsd lock issues
+if [ -f "$CHEZMOI_PREFS_PLIST" ]; then
+    echo "  📦 Syncing preferences (toolbar bookmarks)..."
+    cp "$CHEZMOI_PREFS_PLIST" "$PF_PREFS_DIR/com.cocoatech.PathFinder.plist"
+    echo -e "  ${GREEN}✓${NC} Preferences synced"
+fi
+
+# Sync saved searches
 if [ -d "$CHEZMOI_PF_DIR/Searches" ]; then
-    echo "  📦 Copying saved searches..."
+    echo "  📦 Syncing saved searches..."
     cp -R "$CHEZMOI_PF_DIR/Searches" "$PF_SUPPORT_DIR/"
-    echo "  ✓ Searches copied"
+    echo -e "  ${GREEN}✓${NC} Searches synced"
 fi
 
+echo ""
 echo -e "${GREEN}✅ Path Finder sync complete!${NC}"
-
-if [ "$PF_RUNNING" = true ]; then
-    echo -e "${YELLOW}   Restart Path Finder to apply all changes.${NC}"
-fi
+echo "   Launch Path Finder to use synced settings."
+{{- else -}}
+#!/bin/bash
+# Path Finder sync skipped (user={{ .chezmoi.username }}, requires bgadow)
+echo "Path Finder sync: skipped (user={{ .chezmoi.username }})"
 {{- end -}}
