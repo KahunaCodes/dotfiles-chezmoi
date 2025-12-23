@@ -1,14 +1,14 @@
 #!/bin/bash
 # Path Finder Settings Export Script
 # Run this manually to capture current settings before committing
-# Usage: ~/.local/share/chezmoi/.chezmoiscripts/pathfinder-export.sh
+# Usage: ~/.scripts/pathfinder-export.sh
 
 set -e
 
 CHEZMOI_SOURCE="${CHEZMOI_SOURCE_DIR:-$(chezmoi source-path)}"
 PF_CHEZMOI_DIR="$CHEZMOI_SOURCE/private_Library/private_Application Support/private_Path Finder"
 PF_SUPPORT_DIR="$HOME/Library/Application Support/Path Finder"
-PF_PREFS_DIR="$CHEZMOI_SOURCE/.chezmoitemplates"
+PF_PREFS_DIR="$CHEZMOI_SOURCE/private_Library/private_Preferences"
 
 # Colors
 GREEN='\033[0;32m'

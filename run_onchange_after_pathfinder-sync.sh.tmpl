@@ -3,13 +3,13 @@
 # Path Finder Settings Import
 # This runs when Path Finder settings change in the repo
 #
-# Settings hash: {{ include ".chezmoitemplates/pathfinder-prefs.plist" | sha256sum }}
+# Settings hash: {{ include "private_Library/private_Application Support/private_Path Finder/Settings/settings10" | sha256sum }}
 
 set -e
 
 PF_SUPPORT_DIR="$HOME/Library/Application Support/Path Finder"
 CHEZMOI_PF_DIR="{{ .chezmoi.sourceDir }}/private_Library/private_Application Support/private_Path Finder"
-PREFS_PLIST="{{ .chezmoi.sourceDir }}/.chezmoitemplates/pathfinder-prefs.plist"
+PREFS_PLIST="{{ .chezmoi.sourceDir }}/private_Library/private_Preferences/pathfinder-prefs.plist"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

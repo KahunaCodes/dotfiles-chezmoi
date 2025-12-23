@@ -12,13 +12,13 @@ This directory contains Path Finder settings synced via chezmoi.
 
 ## How It Works
 
-1. **Export** (on source machine): Run `.chezmoiscripts/pathfinder-export.sh`
+1. **Export** (on source machine): Run `~/.scripts/pathfinder-export.sh`
    - Quit Path Finder first
    - Exports plist via `defaults export` (cfprefsd-safe)
    - Copies SQLite database with proper WAL handling
    
 2. **Import** (on target machine): Automatic via `run_onchange_after_pathfinder-sync.sh.tmpl`
-   - Triggered when plist hash changes
+   - Triggered when settings10 hash changes
    - Imports via `defaults import`
    - Copies database (only if Path Finder not running)
 
@@ -26,7 +26,7 @@ This directory contains Path Finder settings synced via chezmoi.
 
 ```bash
 # Export current settings
-~/.local/share/chezmoi/.chezmoiscripts/pathfinder-export.sh
+~/.scripts/pathfinder-export.sh
 
 # Commit and push
 cd ~/.local/share/chezmoi
