@@ -2,7 +2,7 @@
 # Merge MCP servers from chezmoi-managed config into .claude.json
 # This preserves other runtime data in .claude.json while syncing MCP config
 #
-# mcp-servers.json hash: {{ include "private_dot_claude/mcp-servers.json" | sha256sum }}
+# mcp-servers.json hash: {{ include "private_dot_claude/mcp-servers.json.tmpl" | sha256sum }}
 
 MCP_SOURCE="$HOME/.claude/mcp-servers.json"
 CLAUDE_CONFIG="$HOME/.claude.json"
