@@ -363,6 +363,134 @@ def cmd_recent(args: argparse.Namespace) -> int:
         return 1
 
 
+def cmd_context(args: argparse.Namespace) -> int:
+    """Show full job context including parts, payments, claims, and comments.
+
+    This command requires access to the servicebench-bot project for database access.
+    """
+    if not args.job_id:
+        print_error("Job ID required")
+        return 1
+
+    # Try to import from project
+    project_paths = [
+        Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+        Path.home() / "Projects/servicebench-bot",
+        Path("/opt/servicebench-bot"),
+    ]
+
+    project_found = False
+    project_path = None
+    for path in project_paths:
+        if path.exists() and (path / "automation" / "job_database.py").exists():
+            sys.path.insert(0, str(path))
+            project_found = True
+            project_path = path
+            break
+
+    if not project_found:
+        print_error("Context viewer requires servicebench-bot project")
+        return 1
+
+    try:
+        from automation.job_database import job_db
+
+        job_id = args.job_id.strip().upper()
+        context = job_db.get_job_summary(job_id)
+
+        if not context:
+            print_error(f"No data found for job {job_id}")
+            return 1
+
+        # Header
+        print(f"\n{'='*60}")
+        print(f"  JOB CONTEXT: {job_id}")
+        print(f"{'='*60}\n")
+
+        # Basic info
+        print("📋 BASIC INFO")
+        print(f"   Status:     {context.get('status', 'N/A')}")
+        print(f"   Type:       {context.get('job_type', 'N/A')}")
+        print(f"   Action:     {context.get('action', 'N/A')}")
+        print(f"   Technician: {context.get('technician', 'N/A')}")
+        print(f"   Location:   {context.get('location', 'N/A')}")
+        print(f"   Scheduled:  {context.get('scheduled_date', 'N/A')}")
+        if context.get('job_url'):
+            print(f"   URL:        {context.get('job_url')}")
+        print(f"   Created:    {context.get('created_at', 'N/A')}")
+        print(f"   Updated:    {context.get('updated_at', 'N/A')}")
+        if context.get('message'):
+            print(f"   Message:    {context.get('message')}")
+
+        # Parts
+        parts = context.get('parts', [])
+        if parts:
+            print(f"\n🔧 PARTS ({len(parts)})")
+            for p in parts:
+                status = p.get('part_status', 'Unknown')
+                qty = p.get('part_quantity', 1)
+                print(f"   • {p.get('part_name', 'Unknown')} [{status}] x{qty}")
+
+        # Perils
+        perils = context.get('perils', [])
+        if perils:
+            print(f"\n⚠️  PERILS ({len(perils)})")
+            for p in perils:
+                print(f"   • {p.get('peril_name', 'Unknown')} ({p.get('peril_type', 'N/A')})")
+
+        # Payment
+        payment = context.get('payment')
+        if payment:
+            print(f"\n💰 PAYMENT")
+            print(f"   Travel:      ${payment.get('travel_pay', 0):.2f}")
+            print(f"   Labor:       ${payment.get('labor_pay', 0):.2f}")
+            print(f"   Total:       ${payment.get('total_pay', 0):.2f}")
+            if payment.get('is_multi_peril'):
+                print(f"   Multi-peril: Yes")
+            if payment.get('is_double_travel'):
+                print(f"   Double travel: Yes")
+            if payment.get('payment_notes'):
+                print(f"   Notes:       {payment.get('payment_notes')}")
+
+        # Claims
+        claims = context.get('claims', [])
+        if claims:
+            print(f"\n📄 CLAIMS ({len(claims)})")
+            for c in claims:
+                print(f"   • {c.get('claim_id', 'Unknown')} - {c.get('status', 'N/A')}")
+                if c.get('amount'):
+                    print(f"     Amount: ${c.get('amount'):.2f}")
+
+        # Comments
+        comments = context.get('comments', [])
+        if comments:
+            print(f"\n💬 COMMENTS ({len(comments)})")
+            for c in comments[:5]:  # Limit to 5 most recent
+                source = c.get('comment_source', 'unknown')
+                text = c.get('comment_text', '')[:100]  # Truncate long comments
+                if len(c.get('comment_text', '')) > 100:
+                    text += "..."
+                print(f"   [{source}] {text}")
+            if len(comments) > 5:
+                print(f"   ... and {len(comments) - 5} more comments")
+
+        print(f"\n{'='*60}\n")
+
+        # JSON output if verbose
+        if args.verbose:
+            print("📊 RAW DATA (JSON)")
+            print(json.dumps(context, indent=2, default=str))
+
+        return 0
+
+    except Exception as e:
+        print_error(f"Context error: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
+
+
 # ---------------------------------------------------------------------------
 # Main Entry Point
 # ---------------------------------------------------------------------------
@@ -381,10 +509,12 @@ Examples:
   sb status --remote production    Check remote server
   sb stop                          Stop all workers
   sb logs SNWT123456              View job logs
+  sb context SNWT123456           Full job context (parts, payments, etc.)
   sb recent                        Show recent jobs
 
 SSH Usage:
   ssh auto-mac sb jobs SNWT123456
+  ssh auto-mac sb context SNWT123456
   ssh main-mac sb status
 """,
     )
@@ -462,6 +592,11 @@ SSH Usage:
     p_recent = subparsers.add_parser("recent", help="Show recent jobs")
     p_recent.add_argument("-n", "--limit", type=int, default=20, help="Number of jobs to show")
     p_recent.set_defaults(func=cmd_recent)
+
+    # --- context ---
+    p_context = subparsers.add_parser("context", help="Full job context (parts, payments, claims)")
+    p_context.add_argument("job_id", help="Job ID to get context for")
+    p_context.set_defaults(func=cmd_context)
 
     args = parser.parse_args()
 
