@@ -307,22 +307,34 @@ def cmd_logs(args: argparse.Namespace) -> int:
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/main",
+        Path.home() / "servicebench-bot",  # Production on automation-mac
         Path.home() / "Projects/servicebench-bot",
         Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
     project_found = False
+    project_path = None
     for path in project_paths:
         if path.exists() and (path / "cli" / "database_viewer.py").exists():
-            sys.path.insert(0, str(path))
             project_found = True
+            project_path = path
             break
 
     if not project_found:
         print_error("Database viewer requires servicebench-bot project")
         print_info("Use 'sb status' or 'sb recent' via API instead")
         return 1
+
+    # Add project's venv site-packages FIRST (for dependencies)
+    venv_site_packages = project_path / ".venv" / "lib"
+    if venv_site_packages.exists():
+        for py_dir in venv_site_packages.glob("python*/site-packages"):
+            if str(py_dir) not in sys.path:
+                sys.path.insert(0, str(py_dir))
+
+    # Now add project path for imports
+    sys.path.insert(0, str(project_path))
 
     try:
         from cli.database_viewer import print_job_info, print_daily_stats
@@ -344,21 +356,33 @@ def cmd_recent(args: argparse.Namespace) -> int:
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/main",
+        Path.home() / "servicebench-bot",  # Production on automation-mac
         Path.home() / "Projects/servicebench-bot",
         Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
     project_found = False
+    project_path = None
     for path in project_paths:
         if path.exists() and (path / "cli" / "database_viewer.py").exists():
-            sys.path.insert(0, str(path))
             project_found = True
+            project_path = path
             break
 
     if not project_found:
         print_error("Recent jobs view requires servicebench-bot project")
         return 1
+
+    # Add project's venv site-packages FIRST (for dependencies)
+    venv_site_packages = project_path / ".venv" / "lib"
+    if venv_site_packages.exists():
+        for py_dir in venv_site_packages.glob("python*/site-packages"):
+            if str(py_dir) not in sys.path:
+                sys.path.insert(0, str(py_dir))
+
+    # Now add project path for imports
+    sys.path.insert(0, str(project_path))
 
     try:
         from cli.database_viewer import print_recent_jobs
@@ -379,10 +403,12 @@ def cmd_context(args: argparse.Namespace) -> int:
         return 1
 
     # Try to import from project (check multiple possible locations)
+    # Note: /Users/Apple/servicebench-bot is the production instance on automation-mac
     project_paths = [
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/main",
+        Path.home() / "servicebench-bot",  # Production on automation-mac
         Path.home() / "Projects/servicebench-bot",
         Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
@@ -392,7 +418,6 @@ def cmd_context(args: argparse.Namespace) -> int:
     project_path = None
     for path in project_paths:
         if path.exists() and (path / "automation" / "job_database.py").exists():
-            sys.path.insert(0, str(path))
             project_found = True
             project_path = path
             break
@@ -401,12 +426,16 @@ def cmd_context(args: argparse.Namespace) -> int:
         print_error("Context viewer requires servicebench-bot project")
         return 1
 
-    # Add project's venv site-packages if available (for dependencies like yaml)
+    # Add project's venv site-packages FIRST (for dependencies like yaml)
+    # This must happen before adding project path to avoid import errors
     venv_site_packages = project_path / ".venv" / "lib"
     if venv_site_packages.exists():
         for py_dir in venv_site_packages.glob("python*/site-packages"):
             if str(py_dir) not in sys.path:
                 sys.path.insert(0, str(py_dir))
+
+    # Now add project path for imports
+    sys.path.insert(0, str(project_path))
 
     try:
         from automation.job_database import job_db
