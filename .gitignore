@@ -6,3 +6,9 @@
 
 # Local chezmoi config (contains machine-specific data)
 .chezmoi.toml
+
+# Runtime files from servicebench-bot testing
+deployment_version.json
+job_tracking.db
+job_assignments.log
+logs/

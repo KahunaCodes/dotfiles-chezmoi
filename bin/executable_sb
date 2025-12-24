@@ -18,12 +18,39 @@ Subcommands:
 Author: ServiceBench Bot Team
 """
 
-import argparse
-import json
 import os
-import socket
 import sys
 from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# Re-exec with project venv if needed (for compiled dependencies like greenlet)
+# This happens BEFORE any other imports to ensure correct Python is used
+# ---------------------------------------------------------------------------
+if not os.environ.get("SB_REEXEC"):
+    # Commands that require project imports (database access)
+    PROJECT_COMMANDS = {"logs", "recent", "context"}
+
+    # Check if we're running a command that needs project deps
+    if len(sys.argv) > 1 and sys.argv[1] in PROJECT_COMMANDS:
+        # Find project with venv
+        venv_paths = [
+            Path.home() / "servicebench-bot" / ".venv",
+            Path.home() / "Projects/mileage-sync" / ".venv",
+            Path.home() / "Projects/servicebench-bot" / ".venv",
+            Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running" / ".venv",
+        ]
+
+        for venv in venv_paths:
+            venv_python = venv / "bin" / "python"
+            if venv_python.exists():
+                # Re-exec with venv python
+                os.environ["SB_REEXEC"] = "1"
+                os.execv(str(venv_python), [str(venv_python), __file__] + sys.argv[1:])
+
+# Standard imports (after potential re-exec)
+import argparse
+import json
+import socket
 from typing import Any
 
 # ---------------------------------------------------------------------------
