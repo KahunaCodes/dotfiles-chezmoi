@@ -302,10 +302,12 @@ def cmd_logs(args: argparse.Namespace) -> int:
 
     This command requires access to the servicebench-bot project for database access.
     """
-    # Try to import from project
+    # Try to import from project (check multiple possible locations)
     project_paths = [
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+        Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/servicebench-bot",
+        Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
@@ -336,10 +338,12 @@ def cmd_logs(args: argparse.Namespace) -> int:
 
 def cmd_recent(args: argparse.Namespace) -> int:
     """Show recent jobs (requires project access)."""
-    # Try to import from project
+    # Try to import from project (check multiple possible locations)
     project_paths = [
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+        Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/servicebench-bot",
+        Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
@@ -372,10 +376,12 @@ def cmd_context(args: argparse.Namespace) -> int:
         print_error("Job ID required")
         return 1
 
-    # Try to import from project
+    # Try to import from project (check multiple possible locations)
     project_paths = [
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+        Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/servicebench-bot",
+        Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
