@@ -401,6 +401,13 @@ def cmd_context(args: argparse.Namespace) -> int:
         print_error("Context viewer requires servicebench-bot project")
         return 1
 
+    # Add project's venv site-packages if available (for dependencies like yaml)
+    venv_site_packages = project_path / ".venv" / "lib"
+    if venv_site_packages.exists():
+        for py_dir in venv_site_packages.glob("python*/site-packages"):
+            if str(py_dir) not in sys.path:
+                sys.path.insert(0, str(py_dir))
+
     try:
         from automation.job_database import job_db
 
