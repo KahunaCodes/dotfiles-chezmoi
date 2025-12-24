@@ -1,0 +1,486 @@
+#!/usr/bin/env python3
+"""
+ServiceBench CLI - Unified command-line interface for ServiceBench automation.
+
+Designed to work via SSH from any machine:
+    ssh auto-mac sb jobs SNWT123456
+    ssh main-mac sb status
+    sb claim SNWT123 --remote production
+
+Subcommands:
+    jobs      Submit unassigned jobs for processing
+    claim     Submit close-and-claim jobs
+    status    Check system status
+    stop      Stop all workers
+    logs      View job logs from database
+    recent    Show recent jobs
+
+Author: ServiceBench Bot Team
+"""
+
+import argparse
+import json
+import os
+import socket
+import sys
+from pathlib import Path
+from typing import Any
+
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
+
+SERVER_PORT = 1017
+
+# Server configurations with Tailscale hostnames and IP fallbacks
+SERVERS = {
+    "local": {
+        "url": f"http://localhost:{SERVER_PORT}",
+        "name": "Local",
+    },
+    "production": {
+        "url": f"http://automation-mac.warthog-tetra.ts.net:{SERVER_PORT}",
+        "fallback": f"http://100.103.90.28:{SERVER_PORT}",
+        "name": "Production (auto-mac)",
+    },
+    "staging": {
+        "url": f"http://main-mac.warthog-tetra.ts.net:{SERVER_PORT}",
+        "fallback": f"http://100.78.213.47:{SERVER_PORT}",
+        "name": "Staging (main-mac)",
+    },
+    "away": {
+        "url": f"http://away-mac.warthog-tetra.ts.net:{SERVER_PORT}",
+        "fallback": f"http://100.67.122.109:{SERVER_PORT}",
+        "name": "Away (away-mac)",
+    },
+}
+
+# Hostname to server mapping for auto-detection
+HOSTNAME_MAP = {
+    "automation-mac": "local",  # On auto-mac, use local
+    "auto-mac": "local",
+    "main-mac": "local",  # On main-mac, use local
+    "away-mac": "local",  # On away-mac, use local
+}
+
+# ---------------------------------------------------------------------------
+# Utility Functions
+# ---------------------------------------------------------------------------
+
+
+def get_hostname() -> str:
+    """Get short hostname."""
+    return socket.gethostname().split(".")[0].lower()
+
+
+def auto_detect_server() -> str:
+    """Auto-detect which server to use based on hostname."""
+    hostname = get_hostname()
+    for pattern, server in HOSTNAME_MAP.items():
+        if pattern in hostname:
+            return server
+    return "local"
+
+
+def get_server_url(server_name: str) -> str:
+    """Get server URL with fallback support."""
+    config = SERVERS.get(server_name, SERVERS["local"])
+    return config["url"]
+
+
+def make_request(
+    method: str,
+    endpoint: str,
+    server: str,
+    data: dict | None = None,
+    timeout: int = 30,
+) -> tuple[bool, Any]:
+    """Make HTTP request to server. Returns (success, response_data)."""
+    try:
+        import requests
+    except ImportError:
+        # Fallback to curl if requests not available
+        return make_curl_request(method, endpoint, server, data, timeout)
+
+    url = f"{get_server_url(server)}{endpoint}"
+    try:
+        if method.upper() == "GET":
+            resp = requests.get(url, timeout=timeout)
+        else:
+            resp = requests.post(url, json=data, timeout=timeout)
+
+        if resp.status_code == 200:
+            return True, resp.json()
+        else:
+            return False, {"error": f"HTTP {resp.status_code}", "body": resp.text}
+    except requests.exceptions.ConnectionError:
+        # Try fallback URL
+        config = SERVERS.get(server, {})
+        if "fallback" in config:
+            fallback_url = f"{config['fallback']}{endpoint}"
+            try:
+                if method.upper() == "GET":
+                    resp = requests.get(fallback_url, timeout=timeout)
+                else:
+                    resp = requests.post(fallback_url, json=data, timeout=timeout)
+                if resp.status_code == 200:
+                    return True, resp.json()
+            except Exception:
+                pass
+        return False, {"error": "Connection failed"}
+    except Exception as e:
+        return False, {"error": str(e)}
+
+
+def make_curl_request(
+    method: str,
+    endpoint: str,
+    server: str,
+    data: dict | None = None,
+    timeout: int = 30,
+) -> tuple[bool, Any]:
+    """Fallback to curl if requests module not available."""
+    import subprocess
+
+    url = f"{get_server_url(server)}{endpoint}"
+    cmd = ["curl", "-s", "-m", str(timeout)]
+
+    if method.upper() == "POST":
+        cmd.extend(["-X", "POST", "-H", "Content-Type: application/json"])
+        if data:
+            cmd.extend(["-d", json.dumps(data)])
+
+    cmd.append(url)
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 5)
+        if result.returncode == 0:
+            return True, json.loads(result.stdout)
+        return False, {"error": f"curl failed: {result.stderr}"}
+    except Exception as e:
+        return False, {"error": str(e)}
+
+
+def print_success(msg: str) -> None:
+    print(f"\033[92m✓\033[0m {msg}")
+
+
+def print_error(msg: str) -> None:
+    print(f"\033[91m✗\033[0m {msg}", file=sys.stderr)
+
+
+def print_info(msg: str) -> None:
+    print(f"\033[94mℹ\033[0m {msg}")
+
+
+def print_warning(msg: str) -> None:
+    print(f"\033[93m⚠\033[0m {msg}")
+
+
+def validate_job_ids(job_ids: list[str]) -> list[str]:
+    """Validate and normalize job IDs."""
+    valid = []
+    for jid in job_ids:
+        jid = jid.strip().upper()
+        if jid.startswith("SNW") or jid.startswith("CNW"):
+            valid.append(jid)
+        elif jid:
+            print_warning(f"Invalid job ID format: {jid}")
+    return valid
+
+
+# ---------------------------------------------------------------------------
+# Command Handlers
+# ---------------------------------------------------------------------------
+
+
+def cmd_jobs(args: argparse.Namespace) -> int:
+    """Submit unassigned jobs for processing."""
+    job_ids = validate_job_ids(args.job_ids)
+    if not job_ids:
+        print_error("No valid job IDs provided")
+        return 1
+
+    print_info(f"Submitting {len(job_ids)} job(s) to {args.server}...")
+
+    data = {
+        "job_ids": job_ids,
+        "workers": args.workers,
+        "headless": not args.visible,
+        "start_processing": True,
+    }
+
+    success, resp = make_request("POST", "/unassigned_jobs", args.server, data)
+
+    if success:
+        print_success(f"Queued {resp.get('queued_count', len(job_ids))} jobs")
+        if resp.get("already_processed"):
+            print_info(f"Already processed: {resp['already_processed']}")
+        if resp.get("queue_size"):
+            print_info(f"Queue size: {resp['queue_size']}")
+        return 0
+    else:
+        print_error(f"Failed: {resp.get('error', 'Unknown error')}")
+        return 1
+
+
+def cmd_claim(args: argparse.Namespace) -> int:
+    """Submit close-and-claim jobs."""
+    job_ids = validate_job_ids(args.job_ids)
+    if not job_ids:
+        print_error("No valid job IDs provided")
+        return 1
+
+    print_info(f"Submitting {len(job_ids)} close-and-claim job(s) to {args.server}...")
+
+    data = {
+        "job_ids": job_ids,
+        "specialized": args.specialized,
+        "headless": not args.visible,
+        "force": args.force,
+    }
+    if args.workers:
+        data["workers"] = args.workers
+
+    success, resp = make_request("POST", "/close_and_claim", args.server, data)
+
+    if success:
+        print_success(f"Queued {resp.get('queued_count', len(job_ids))} jobs")
+        return 0
+    else:
+        print_error(f"Failed: {resp.get('error', 'Unknown error')}")
+        return 1
+
+
+def cmd_status(args: argparse.Namespace) -> int:
+    """Check system status."""
+    print_info(f"Checking status of {args.server}...")
+
+    success, resp = make_request("GET", "/system_status", args.server)
+
+    if success:
+        print_success(f"Server: {SERVERS.get(args.server, {}).get('name', args.server)}")
+        print(f"  Status: {resp.get('status', 'unknown')}")
+
+        # Job processing info
+        job_info = resp.get("job_processing", {})
+        if job_info:
+            print(f"  Job Queue: {job_info.get('queue_size', 0)}")
+            print(f"  Job Workers: {'active' if job_info.get('processing_active') else 'idle'}")
+
+        # Claim processing info
+        claim_info = resp.get("claim_processing", {})
+        if claim_info:
+            print(f"  Claim Queue: {claim_info.get('queue_size', 0)}")
+            print(f"  Claim Workers: {'active' if claim_info.get('processing_active') else 'idle'}")
+
+        if args.verbose:
+            print("\nFull response:")
+            print(json.dumps(resp, indent=2))
+        return 0
+    else:
+        print_error(f"Failed to connect: {resp.get('error', 'Unknown error')}")
+        return 1
+
+
+def cmd_stop(args: argparse.Namespace) -> int:
+    """Stop all workers."""
+    print_info(f"Stopping all workers on {args.server}...")
+
+    success, resp = make_request("POST", "/stop_all_workers", args.server)
+
+    if success:
+        print_success("Workers stopped")
+        return 0
+    else:
+        print_error(f"Failed: {resp.get('error', 'Unknown error')}")
+        return 1
+
+
+def cmd_logs(args: argparse.Namespace) -> int:
+    """View job logs from database.
+
+    This command requires access to the servicebench-bot project for database access.
+    """
+    # Try to import from project
+    project_paths = [
+        Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+        Path.home() / "Projects/servicebench-bot",
+        Path("/opt/servicebench-bot"),
+    ]
+
+    project_found = False
+    for path in project_paths:
+        if path.exists() and (path / "cli" / "database_viewer.py").exists():
+            sys.path.insert(0, str(path))
+            project_found = True
+            break
+
+    if not project_found:
+        print_error("Database viewer requires servicebench-bot project")
+        print_info("Use 'sb status' or 'sb recent' via API instead")
+        return 1
+
+    try:
+        from cli.database_viewer import print_job_info, print_daily_stats
+
+        if args.job_id:
+            print_job_info(args.job_id)
+        else:
+            print_daily_stats(args.date)
+        return 0
+    except Exception as e:
+        print_error(f"Database error: {e}")
+        return 1
+
+
+def cmd_recent(args: argparse.Namespace) -> int:
+    """Show recent jobs (requires project access)."""
+    # Try to import from project
+    project_paths = [
+        Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+        Path.home() / "Projects/servicebench-bot",
+        Path("/opt/servicebench-bot"),
+    ]
+
+    project_found = False
+    for path in project_paths:
+        if path.exists() and (path / "cli" / "database_viewer.py").exists():
+            sys.path.insert(0, str(path))
+            project_found = True
+            break
+
+    if not project_found:
+        print_error("Recent jobs view requires servicebench-bot project")
+        return 1
+
+    try:
+        from cli.database_viewer import print_recent_jobs
+        print_recent_jobs(args.limit)
+        return 0
+    except Exception as e:
+        print_error(f"Database error: {e}")
+        return 1
+
+
+# ---------------------------------------------------------------------------
+# Main Entry Point
+# ---------------------------------------------------------------------------
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="sb",
+        description="ServiceBench CLI - SSH-friendly automation commands",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  sb jobs SNWT123456 SNWT789012    Submit unassigned jobs
+  sb claim SNWT123456 --force      Submit close-and-claim job
+  sb status                        Check system status
+  sb status --remote production    Check remote server
+  sb stop                          Stop all workers
+  sb logs SNWT123456              View job logs
+  sb recent                        Show recent jobs
+
+SSH Usage:
+  ssh auto-mac sb jobs SNWT123456
+  ssh main-mac sb status
+""",
+    )
+
+    # Global options
+    parser.add_argument(
+        "-r", "--remote",
+        choices=list(SERVERS.keys()),
+        default=None,
+        help="Target server (default: auto-detect based on hostname)",
+    )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Verbose output",
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # --- jobs ---
+    p_jobs = subparsers.add_parser("jobs", help="Submit unassigned jobs")
+    p_jobs.add_argument("job_ids", nargs="+", help="Job IDs (SNWT...)")
+    p_jobs.add_argument("-w", "--workers", type=int, default=2, help="Number of workers")
+    p_jobs.add_argument("--visible", action="store_true", help="Show browser window")
+    p_jobs.add_argument(
+        "-r", "--remote",
+        choices=list(SERVERS.keys()),
+        dest="subcommand_remote",
+        help="Target server",
+    )
+    p_jobs.set_defaults(func=cmd_jobs)
+
+    # --- claim ---
+    p_claim = subparsers.add_parser("claim", help="Submit close-and-claim jobs")
+    p_claim.add_argument("job_ids", nargs="+", help="Job IDs (SNWT/CNWT...)")
+    p_claim.add_argument("-w", "--workers", type=int, help="Number of workers")
+    p_claim.add_argument("-s", "--specialized", action="store_true", help="Use specialized workers")
+    p_claim.add_argument("-f", "--force", action="store_true", help="Force reprocessing")
+    p_claim.add_argument("--visible", action="store_true", help="Show browser window")
+    p_claim.add_argument(
+        "-r", "--remote",
+        choices=list(SERVERS.keys()),
+        dest="subcommand_remote",
+        help="Target server",
+    )
+    p_claim.set_defaults(func=cmd_claim)
+
+    # --- status ---
+    p_status = subparsers.add_parser("status", help="Check system status")
+    p_status.add_argument(
+        "-r", "--remote",
+        choices=list(SERVERS.keys()),
+        dest="subcommand_remote",
+        help="Target server",
+    )
+    p_status.set_defaults(func=cmd_status)
+
+    # --- stop ---
+    p_stop = subparsers.add_parser("stop", help="Stop all workers")
+    p_stop.add_argument(
+        "-r", "--remote",
+        choices=list(SERVERS.keys()),
+        dest="subcommand_remote",
+        help="Target server",
+    )
+    p_stop.set_defaults(func=cmd_stop)
+
+    # --- logs ---
+    p_logs = subparsers.add_parser("logs", help="View job logs")
+    p_logs.add_argument("job_id", nargs="?", help="Job ID to look up")
+    p_logs.add_argument("-d", "--date", help="Date for daily stats (YYYY-MM-DD)")
+    p_logs.set_defaults(func=cmd_logs)
+
+    # --- recent ---
+    p_recent = subparsers.add_parser("recent", help="Show recent jobs")
+    p_recent.add_argument("-n", "--limit", type=int, default=20, help="Number of jobs to show")
+    p_recent.set_defaults(func=cmd_recent)
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        return 1
+
+    # Determine server (check both global and subcommand-level --remote)
+    subcommand_remote = getattr(args, "subcommand_remote", None)
+    if subcommand_remote:
+        args.server = subcommand_remote
+    elif args.remote:
+        args.server = args.remote
+    else:
+        args.server = auto_detect_server()
+
+    # Run command
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
