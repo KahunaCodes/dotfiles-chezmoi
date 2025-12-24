@@ -52,7 +52,8 @@ fi
 # Claude CLI
 # -------------------------------------------------------------------------------
 export PATH="$HOME/.claude:$PATH"
-[[ -f "$HOME/.claude/local/claude" ]] && alias claude="$HOME/.claude/local/claude"
+# Alias commented out - using function wrapper below for SSH keychain support
+# [[ -f "$HOME/.claude/local/claude" ]] && alias claude="$HOME/.claude/local/claude"
 alias cgc='claude --dangerously-skip-permissions "/sc:git --commit"'
 alias ci='claude --dangerously-skip-permissions "/init"'
 alias csi='claude --dangerously-skip-permissions "/sc:index"'

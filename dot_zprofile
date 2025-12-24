@@ -1,0 +1,8 @@
+# .zprofile - login shell config (managed by chezmoi)
+# Note: brew shellenv is NOT here - static exports in .zshrc are faster and safer
+
+# Python 3.13 (if installed via python.org installer)
+if [[ -d "/Library/Frameworks/Python.framework/Versions/3.13/bin" ]]; then
+    PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:${PATH}"
+    export PATH
+fi
