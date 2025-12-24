@@ -303,23 +303,35 @@ def cmd_logs(args: argparse.Namespace) -> int:
     This command requires access to the servicebench-bot project for database access.
     """
     # Try to import from project (check multiple possible locations)
-    project_paths = [
+    # Priority: paths with .venv first (for dependency availability), then others
+    project_paths_with_venv = [
+        Path.home() / "servicebench-bot",  # Production on automation-mac
+        Path.home() / "Projects/mileage-sync",
+        Path.home() / "Projects/servicebench-bot",
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+    ]
+    project_paths_without_venv = [
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/main",
-        Path.home() / "servicebench-bot",  # Production on automation-mac
-        Path.home() / "Projects/servicebench-bot",
-        Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
+    # First, try paths that likely have venvs with dependencies
     project_found = False
     project_path = None
-    for path in project_paths:
+    for path in project_paths_with_venv:
         if path.exists() and (path / "cli" / "database_viewer.py").exists():
             project_found = True
             project_path = path
             break
+
+    # Fallback to paths without venvs
+    if not project_found:
+        for path in project_paths_without_venv:
+            if path.exists() and (path / "cli" / "database_viewer.py").exists():
+                project_found = True
+                project_path = path
+                break
 
     if not project_found:
         print_error("Database viewer requires servicebench-bot project")
@@ -352,23 +364,35 @@ def cmd_logs(args: argparse.Namespace) -> int:
 def cmd_recent(args: argparse.Namespace) -> int:
     """Show recent jobs (requires project access)."""
     # Try to import from project (check multiple possible locations)
-    project_paths = [
+    # Priority: paths with .venv first (for dependency availability), then others
+    project_paths_with_venv = [
+        Path.home() / "servicebench-bot",  # Production on automation-mac
+        Path.home() / "Projects/mileage-sync",
+        Path.home() / "Projects/servicebench-bot",
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+    ]
+    project_paths_without_venv = [
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/main",
-        Path.home() / "servicebench-bot",  # Production on automation-mac
-        Path.home() / "Projects/servicebench-bot",
-        Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
+    # First, try paths that likely have venvs with dependencies
     project_found = False
     project_path = None
-    for path in project_paths:
+    for path in project_paths_with_venv:
         if path.exists() and (path / "cli" / "database_viewer.py").exists():
             project_found = True
             project_path = path
             break
+
+    # Fallback to paths without venvs
+    if not project_found:
+        for path in project_paths_without_venv:
+            if path.exists() and (path / "cli" / "database_viewer.py").exists():
+                project_found = True
+                project_path = path
+                break
 
     if not project_found:
         print_error("Recent jobs view requires servicebench-bot project")
@@ -403,24 +427,35 @@ def cmd_context(args: argparse.Namespace) -> int:
         return 1
 
     # Try to import from project (check multiple possible locations)
-    # Note: /Users/Apple/servicebench-bot is the production instance on automation-mac
-    project_paths = [
+    # Priority: paths with .venv first (for dependency availability), then others
+    project_paths_with_venv = [
+        Path.home() / "servicebench-bot",  # Production on automation-mac
+        Path.home() / "Projects/mileage-sync",
+        Path.home() / "Projects/servicebench-bot",
         Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+    ]
+    project_paths_without_venv = [
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/running",
         Path.home() / "Projects/kahunacodes/active/mileage-sync-worktrees/main",
-        Path.home() / "servicebench-bot",  # Production on automation-mac
-        Path.home() / "Projects/servicebench-bot",
-        Path.home() / "Projects/mileage-sync",
         Path("/opt/servicebench-bot"),
     ]
 
+    # First, try paths that likely have venvs with dependencies
     project_found = False
     project_path = None
-    for path in project_paths:
+    for path in project_paths_with_venv:
         if path.exists() and (path / "automation" / "job_database.py").exists():
             project_found = True
             project_path = path
             break
+
+    # Fallback to paths without venvs (may fail due to missing deps)
+    if not project_found:
+        for path in project_paths_without_venv:
+            if path.exists() and (path / "automation" / "job_database.py").exists():
+                project_found = True
+                project_path = path
+                break
 
     if not project_found:
         print_error("Context viewer requires servicebench-bot project")
