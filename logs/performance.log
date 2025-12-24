@@ -1,4 +1,0 @@
-🔍 2025-12-24 14:58:40,004 - automation.job_database - DEBUG - job_url column already exists in jobs table
-ℹ️ 2025-12-24 14:58:40,009 - automation.job_database - INFO - Database initialized with selector tracking: job_tracking.db
-🔍 2025-12-24 14:58:40,010 - automation.job_database - DEBUG - job_url column already exists in jobs table
-ℹ️ 2025-12-24 14:58:40,010 - automation.job_database - INFO - Database initialized with selector tracking: job_tracking.db
