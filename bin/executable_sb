@@ -374,7 +374,7 @@ def cmd_logs(args: argparse.Namespace) -> int:
                 status,
                 COUNT(*) as count
             FROM jobs
-            WHERE date(created_at) = date(?, 'localtime')
+            WHERE date(created_at) = ?
             GROUP BY type, status
         """, (target_date,))
 
