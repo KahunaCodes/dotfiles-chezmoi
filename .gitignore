@@ -12,3 +12,5 @@ deployment_version.json
 job_tracking.db
 job_assignments.log
 logs/
+part_tracking.db
+slack_notifications.log
