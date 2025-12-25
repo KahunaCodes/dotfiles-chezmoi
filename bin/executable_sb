@@ -32,19 +32,23 @@ if not os.environ.get("SB_REEXEC"):
 
     # Check if we're running a command that needs project deps
     if len(sys.argv) > 1 and sys.argv[1] in PROJECT_COMMANDS:
-        # Find project with venv
-        venv_paths = [
-            Path.home() / "servicebench-bot" / ".venv",
-            Path.home() / "Projects/mileage-sync" / ".venv",
-            Path.home() / "Projects/servicebench-bot" / ".venv",
-            Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running" / ".venv",
+        # Find project with venv (project_dir, venv_path)
+        project_venv_paths = [
+            (Path.home() / "servicebench-bot", Path.home() / "servicebench-bot" / ".venv"),
+            (Path.home() / "Projects/mileage-sync", Path.home() / "Projects/mileage-sync" / ".venv"),
+            (Path.home() / "Projects/servicebench-bot", Path.home() / "Projects/servicebench-bot" / ".venv"),
+            (Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running",
+             Path.home() / "Projects/kahunacodes/active/servicebench-bot-worktrees/running" / ".venv"),
         ]
 
-        for venv in venv_paths:
+        for project_dir, venv in project_venv_paths:
             venv_python = venv / "bin" / "python"
-            if venv_python.exists():
+            if venv_python.exists() and project_dir.exists():
+                # Change to project directory (so relative DB paths work)
+                os.chdir(project_dir)
                 # Re-exec with venv python
                 os.environ["SB_REEXEC"] = "1"
+                os.environ["SB_PROJECT_DIR"] = str(project_dir)
                 os.execv(str(venv_python), [str(venv_python), __file__] + sys.argv[1:])
 
 # Standard imports (after potential re-exec)
