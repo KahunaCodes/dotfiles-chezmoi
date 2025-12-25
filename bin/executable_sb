@@ -51,6 +51,11 @@ if not os.environ.get("SB_REEXEC"):
                 os.environ["SB_PROJECT_DIR"] = str(project_dir)
                 os.execv(str(venv_python), [str(venv_python), __file__] + sys.argv[1:])
 
+# Debug: print working directory after re-exec
+if os.environ.get("SB_DEBUG"):
+    print(f"DEBUG: CWD after re-exec: {os.getcwd()}", file=sys.stderr)
+    print(f"DEBUG: SB_PROJECT_DIR: {os.environ.get('SB_PROJECT_DIR')}", file=sys.stderr)
+
 # Standard imports (after potential re-exec)
 import argparse
 import json
