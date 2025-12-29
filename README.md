@@ -6,9 +6,10 @@ Managed by [Chezmoi](https://chezmoi.io/).
 
 | Profile | Machines | What gets synced |
 |---------|----------|------------------|
-| \`workstation\` | main-mac, away-mac | Everything - shell, Claude, Brewfile, LaunchAgents |
-| \`server\` | automation-mac | Shell, Brewfile, LaunchAgents (no Claude settings) |
-| \`minimal\` | hb-mac | Just .zshrc basics |
+| `workstation` | main-mac, away-mac | Everything - shell, Claude, Brewfile, LaunchAgents, dev tools |
+| `system` | hb-mac | Shell basics, Claude/SuperClaude, Homebrew (no dev tools, no LaunchAgents) |
+| `server` | automation-mac | Shell, Brewfile, LaunchAgents (no Claude settings) |
+| `minimal` | (unused) | Just .zshrc basics |
 
 ## Files Managed
 

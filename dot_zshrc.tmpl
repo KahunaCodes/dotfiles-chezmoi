@@ -12,10 +12,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
 
-{{- if eq .profile "workstation" }}
-# Windsurf (if installed)
-[[ -d "$HOME/.codeium/windsurf/bin" ]] && export PATH="$HOME/.codeium/windsurf/bin:$PATH"
-
+{{- if or (eq .profile "workstation") (eq .profile "system") }}
 # -------------------------------------------------------------------------------
 # Homebrew
 # -------------------------------------------------------------------------------
@@ -23,6 +20,15 @@ export HOMEBREW_NO_ANALYTICS=1
 if [[ -f /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+
+# -------------------------------------------------------------------------------
+# Claude CLI
+# -------------------------------------------------------------------------------
+{{- end }}
+
+{{- if eq .profile "workstation" }}
+# Windsurf (if installed)
+[[ -d "$HOME/.codeium/windsurf/bin" ]] && export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 
 # -------------------------------------------------------------------------------
 # Development Tools
@@ -47,9 +53,11 @@ if [[ -d "$HOME/.bun" ]]; then
     export PATH="$BUN_INSTALL/bin:$PATH"
     [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 fi
+{{- end }}
 
+{{- if or (eq .profile "workstation") (eq .profile "system") }}
 # -------------------------------------------------------------------------------
-# Claude CLI
+# Claude CLI (continued)
 # -------------------------------------------------------------------------------
 export PATH="$HOME/.claude:$PATH"
 # Alias commented out - using function wrapper below for SSH keychain support

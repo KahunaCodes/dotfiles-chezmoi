@@ -1,4 +1,4 @@
-{{- if ne .profile "minimal" -}}
+{{- if eq .profile "workstation" -}}
 #!/bin/bash
 # Run brew bundle when Brewfile changes
 # Brewfile hash: {{ include "dot_Brewfile" | sha256sum }}
